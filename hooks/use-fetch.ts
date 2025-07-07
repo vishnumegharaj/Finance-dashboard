@@ -12,9 +12,12 @@ const useFetch = (cb: Function) => {
         setLoading(true);
         setError(null);
         try {
+            console.log("Fetching data with args:", args);
+
             const response = await cb(...args);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+
+            if (response && !response.success === true) {
+                throw new Error(response.message || "Unknown error");
             }
             setData(response);
         } catch (err) {
@@ -34,4 +37,4 @@ const useFetch = (cb: Function) => {
     return { data, setData, error, loading, fn };
 }
 
-export default useFetch;    
+export default useFetch;

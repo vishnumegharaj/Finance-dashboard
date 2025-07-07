@@ -23,14 +23,28 @@ import { Switch } from './switch';
 import { Button } from "@/components/ui/button";
 import useFetch from '@/hooks/use-fetch';
 import { createAccount } from '@/actions/dashboard';
+import { AccountTypeTypes } from '@/lib/interface';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
+const accountTypes = [
+    { value: "personal", label: "Personal", icon: "👤", description: "Personal expenses and income" },
+    { value: "work", label: "Work", icon: "💼", description: "Work-related expenses and salary" },
+    { value: "business", label: "Business", icon: "🏢", description: "Business operations and revenue" },
+    { value: "savings", label: "Savings", icon: "🏦", description: "Savings and emergency funds" },
+    { value: "investment", label: "Investment", icon: "📈", description: "Investment accounts and portfolios" },
+]
+
+type CreateAccountDialogProps = {
+  children: React.ReactNode;
+  fetchAccounts: () => Promise<void>;
+};
+
 const CreateAccountDialog = (
-    { children }: Readonly<{ children: React.ReactNode; }>
+    { children, fetchAccounts }: CreateAccountDialogProps
 ) => {
 
-    const [open, setOpen] = React.useState(true);
+    const [open, setOpen] = React.useState(false);
 
     const {
         register,
@@ -43,7 +57,6 @@ const CreateAccountDialog = (
         resolver: zodResolver(accountSchema),
         defaultValues: {
             name: "",
-            type: "CURRENT",
             balance: "",
             isDefault: false,
         },
@@ -58,8 +71,9 @@ const CreateAccountDialog = (
     useEffect(() => {
         if (newAccount && !createAccountLoading) {
             toast.success("Account created successfully!");
-            reset(); 
+            reset();
             setOpen(false);
+            fetchAccounts();
         }
         if (error) {
             console.error("Error creating account:", error);
@@ -67,8 +81,8 @@ const CreateAccountDialog = (
         }
     }, [newAccount, createAccountLoading]);
 
-       useEffect(() => {
-   
+    useEffect(() => {
+
         if (error) {
             toast.error(error.message || "Failed to create account. Please try again.");
             console.error("Error creating account:", error);
@@ -103,15 +117,24 @@ const CreateAccountDialog = (
                         <div className="">
                             <label htmlFor="type">Account Type</label>
                             <Select
-                                onValueChange={(value) => setValue("type", value as "CURRENT" | "SAVINGS")}
+                                onValueChange={(value) => setValue("type", value as AccountTypeTypes)}
                                 defaultValue={watch("type")}
                             >
-                                <SelectTrigger id="type" className="w-full">
+                                <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Select account type" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="CURRENT">CURRENT</SelectItem>
-                                    <SelectItem value="SAVINGS">SAVINGS</SelectItem>
+                                    {accountTypes.map((type) => (
+                                        <SelectItem key={type.value} value={type.value}>
+                                            <div className="flex items-center gap-2">
+                                                <span>{type.icon}</span>
+                                                <div className="flex flex-col items-start">
+                                                    <div className="font-medium">{type.label}</div>
+                                                    <div className="text-xs text-gray-500">{type.description}</div>
+                                                </div>
+                                            </div>
+                                        </SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
                             {errors.type && (
@@ -159,9 +182,9 @@ const CreateAccountDialog = (
                                 Cancel
                             </Button>
                             <Button type="submit" disabled={createAccountLoading}   >
-                                {!createAccountLoading ? (
+                                {createAccountLoading ? (
                                     <>
-                                        <Loader2 className='mr-2 h-4 w-4 animate-spin' /> creating...
+                                        <Loader2 className=' h-4 w-4 animate-spin' /> creating...
                                     </>
                                 ) : (
                                     "Create Account"

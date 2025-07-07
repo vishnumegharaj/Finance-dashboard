@@ -6,7 +6,7 @@ const MainLayout = ({
     children: React.ReactNode;
 }>) => {
     return (
-        <div className='px-5 py-6'>
+        <div className='bg-white px-6 py-6'>
             {children}
         </div>
     )

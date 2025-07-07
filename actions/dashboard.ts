@@ -2,17 +2,23 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "../lib/prisma";
 import { Decimal } from "@prisma/client/runtime/library";
+export type AccountTypeTypes =
+  | "personal"
+  | "work"
+  | "business"
+  | "savings"
+  | "investment";
 
-export type AccountType = "CURRENT" | "SAVINGS";
 export interface Account {
   name: string;
-  type: AccountType;
+  type: AccountTypeTypes;
   balance: Number;
   isDefault: boolean;
 }
 
 export async function createAccount(data: Account) {
   try {
+    console.log("Creating account with data:", data);
     const { userId } = await auth();
     if (!userId) throw new Error("Unauthorised");
 
@@ -74,6 +80,43 @@ export async function createAccount(data: Account) {
       throw new Error("An unknown error occurred");
     }
   }
+}
+
+export async function getAccounts() {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorised");
+
+  const user = await db.user.findUnique({
+    where: { clerkUserId: userId },
+  });
+
+  if (!user) throw new Error("User not found");
+  const accounts = await db.account.findMany({
+    where: {
+      userId: user.id,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    include:{
+      _count: {
+        select: {
+          transactions: true,
+        },  
+      },
+    }
+  });
+
+  // Serialize the balances before returning
+  const serializedAccounts = accounts.map(account => ({
+    ...account,
+    balance: serializeBalance(account.balance),
+  }));
+
+  return {
+    success: true,
+    data: serializedAccounts,
+  };
 }
 
 const serializeBalance = (balance: Decimal) => {

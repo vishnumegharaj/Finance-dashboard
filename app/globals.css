@@ -3,6 +3,18 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@layer utilities {
+  .bg-primary-gradient {
+    background-image: var(--primary-gradient);
+  }
+  .text-primary-gradient {
+    background-image: var(--primary-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -79,7 +91,13 @@
   --sidebar-ring: oklch(0.708 0 0);
   /* Theme Colors */
   --primary:  hsl(221, 89%, 38%);
-  --background: hsl(246, 100%, 96%);
+  --primary-gradient: linear-gradient(
+    90deg,
+    hsl(221, 89%, 48%) 0%,
+    hsl(221, 89%, 38%) 50%,
+    hsl(221, 89%, 32%) 100%
+  );
+  --background: hsl(0, 0%, 100%);
   --card: hsl(0 0% 100%);
   --card-border: hsl(220 14% 96%);
   --sidebar: hsl(0 0% 98%);
