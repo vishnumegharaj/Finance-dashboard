@@ -30,38 +30,6 @@ const AccountPage = async ({ params }: AccountParams) => {
                     <p>{account._count.transactions} Transactions</p>
                 </div>
             </div>
-            {/* <div>
-                <h2 className="font-semibold text-lg mb-2">Recent Transactions</h2>
-                {account.transactions.length === 0 ? (
-                    <div className="text-sm text-muted-foreground">No transactions for this account.</div>
-                ) : (
-                    <div className="flex flex-col gap-2">
-                        {account.transactions.map((tx: any) => (
-                            <Card key={tx.id} className="flex flex-row items-center justify-between p-3">
-                                <div className="flex items-center gap-2">
-                                    {tx.type === 'INCOME' ? (
-                                        <ArrowUpRight className="w-4 h-4 text-green-500" />
-                                    ) : (
-                                        <ArrowDownRight className="w-4 h-4 text-red-500" />
-                                    )}
-                                    <div>
-                                        <div className="font-medium text-sm">{tx.description || tx.category}</div>
-                                        <div className="text-xs text-muted-foreground">{tx.createdAt}</div>
-                                    </div>
-                                </div>
-                                <div className="flex flex-col items-end">
-                                    <span className={tx.type === 'INCOME' ? 'text-green-700 font-semibold' : 'text-red-600 font-semibold'}>
-                                        {tx.type === 'INCOME' ? '+' : '-'}₹{tx.amount.toLocaleString()}
-                                    </span>
-                                    <Badge variant="outline" className="capitalize px-2 py-0.5 text-xs mt-1">
-                                        {tx.status.toLowerCase()}
-                                    </Badge>
-                                </div>
-                            </Card>
-                        ))}
-                    </div>
-                )}
-            </div> */}
         </div>
     );
 };
