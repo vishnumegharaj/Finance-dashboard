@@ -2,7 +2,13 @@ import {currentUser} from "@clerk/nextjs/server";
 import {db} from "./prisma";
 
 export const checkUser = async() => {
-    const user = await currentUser();
+  let user;
+  try {
+    user = await currentUser();
+  } catch (error) {
+    // If currentUser throws (e.g., not authenticated), treat as unauthenticated
+    return null;
+  }
   if (!user) {
     return null;
   }

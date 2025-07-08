@@ -17,10 +17,12 @@ const Header = async () => {
 
             <nav>
                 <Link href="/" className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold">
-                        💰
-                    </div>
-                    <span className="font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    <img
+                        src="/images/logo.png"
+                        alt="FinanceFlow Logo"
+                        className="w-9 h-9"
+                    />
+                    <span className="font-bold text-xl text-primary-gradient bg-clip-text text-transparent">
                         FinanceFlow
                     </span>
                 </Link>
@@ -50,11 +52,11 @@ const Header = async () => {
                     <SignUpButton>
                         <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white cursor-pointer">
                             Sign Up
-                        </Button>   
+                        </Button>
                     </SignUpButton>
                 </SignedOut>
                 <SignedIn>
-                    
+
                     <UserButton
                         appearance={{
                             elements: {

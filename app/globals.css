@@ -5,10 +5,10 @@
 
 @layer utilities {
   .bg-primary-gradient {
-    background-image: var(--primary-gradient);
+    background-image: linear-gradient(to right, #2563eb, #205de0, #1e40af); /* blue-500, blue-600, blue-800 */
   }
   .text-primary-gradient {
-    background-image: var(--primary-gradient);
+    background-image: linear-gradient(to right, #2563eb, #225cdb, #1e40af); /* blue-500, blue-600, blue-800 */
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -73,8 +73,8 @@
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
+  --border: oklch(84.212% 0.0001 271.152);
+  --input: oklch(83.591% 0.0001 271.152);
   --ring: oklch(0.708 0 0);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
@@ -90,11 +90,11 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   /* Theme Colors */
-  --primary:  hsl(221, 89%, 38%);
+  --primary:  hsl(221, 89%, 40%);
   --primary-gradient: linear-gradient(
     90deg,
-    hsl(221, 89%, 48%) 0%,
-    hsl(221, 89%, 38%) 50%,
+    hsl(221, 89%, 50%) 10%,
+    hsl(221, 89%, 40%) 80%,
     hsl(221, 89%, 32%) 100%
   );
   --background: hsl(0, 0%, 100%);
