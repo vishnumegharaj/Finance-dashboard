@@ -4,9 +4,14 @@ declare global {
   var prisma: PrismaClient | undefined;
 }
 
-console.log("🔄 Initializing Prisma Client");
-
-const db = globalThis.prisma || new PrismaClient();
+const db = globalThis.prisma || new PrismaClient({
+  log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL,
+    },
+  },
+});
 
 if (process.env.NODE_ENV !== "production") globalThis.prisma = db;
 

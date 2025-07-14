@@ -1,3 +1,5 @@
+"use client"
+
 import React from 'react'
 import {
     SignInButton,
@@ -8,10 +10,8 @@ import {
 } from '@clerk/nextjs'
 import Link from 'next/link';
 import { Button } from './ui/button';
-import { checkUser } from '@/lib/checkUser';
 
-const Header = async () => {
-    await checkUser();
+const Header = () => {
     return (
         <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-gray-200/50 h-15 flex items-center justify-between px-8 sm:px-6 lg:px-20 shadow-md">
 

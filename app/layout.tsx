@@ -1,28 +1,18 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
 import { Inter } from "next/font/google";
+import "./globals.css";
 import Header from "@/components/Header";
 import { Footer } from "@/components/home/footer";
 import {
   ClerkProvider,
 } from '@clerk/nextjs'
 import { Toaster } from "@/components/ui/sonner"
-// import ThemeScript from "../components/ThemeScript";
+import { PerformanceMonitor } from "@/components/PerformanceMonitor"
+import { UserProvider } from "@/components/UserProvider"
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
-});
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
@@ -39,13 +29,13 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body className={`${inter.className}`}>
-          {/* <ThemeScript /> */}
-          <Header />
-
-          <main className="min-h-screen">{children}</main>
-          <Toaster richColors/>
-          {/* Footer */}
-          <Footer />
+          {process.env.NODE_ENV === 'development' && <PerformanceMonitor />}
+          <UserProvider>
+            <Header />
+            <main className="min-h-screen">{children}</main>
+            <Toaster richColors/>
+            <Footer />
+          </UserProvider>
         </body>
       </html>
     </ClerkProvider>

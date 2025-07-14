@@ -14,32 +14,49 @@ export const checkUser = async() => {
   }
 
   try{
+    // First try to find existing user with a more efficient query
     const loggedInUser = await db.user.findUnique({   
       where: {
         clerkUserId: user.id,
       },
+      select: {
+        id: true,
+        clerkUserId: true,
+        email: true,
+        name: true,
+        imageUrl: true,
+        createdAt: true,
+        updatedAt: true,
+      }
     });
 
     if(loggedInUser){
         return loggedInUser;
     }
 
-    const name = `${user.firstName} ${user.lastName}`;
+    // Only create new user if not found
+    const name = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User';
     const newUser = await db.user.create({
         data: {
             clerkUserId: user.id,
-            email: user.emailAddresses[0].emailAddress,
+            email: user.emailAddresses[0]?.emailAddress || '',
             name: name,
             imageUrl : user.imageUrl,
         },
+        select: {
+          id: true,
+          clerkUserId: true,
+          email: true,
+          name: true,
+          imageUrl: true,
+          createdAt: true,
+          updatedAt: true,
+        }
     })
 
     return newUser;
   }catch(error){
-    if (error instanceof Error) {
-      console.error("Error checking user:", error.message);
-    } else {
-      console.error("Error checking user:", error);
-    }
+    console.error("Error checking user:", error);
+    return null;
   }
 }

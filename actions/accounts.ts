@@ -20,7 +20,7 @@ export async function getAccountById(accountId: string) {
         where: {
             id: accountId,
             userId: user.id,
-        },
+            },
         include: {
             transactions: {
                 orderBy: {
