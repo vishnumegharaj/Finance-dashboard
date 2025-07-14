@@ -32,13 +32,19 @@ import { useRouter } from 'next/navigation'
 import TransactionFilters from '@/components/TransactionFilters'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import useFetch from '@/hooks/use-fetch'
+import { DeleteManyTransaction } from '@/actions/transactions'
+import { toast } from 'sonner'
+import { BarLoader } from 'react-spinners'
 
 // ✅ CORRECTED: Proper props typing and parameter destructuring
 interface TransactionTableProps {
   transactions: Transaction[];
+  onTransactionsChange?: (txs: Transaction[]) => void; // Optional callback for parent update
+  refreshAccount?: () => void; // New prop for silent refresh
 }
 
-const TransactionTable = ({ transactions }: TransactionTableProps) => {
+const TransactionTable = ({ transactions, onTransactionsChange, refreshAccount }: TransactionTableProps) => {
   const router = useRouter();
 
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
@@ -60,6 +66,37 @@ const TransactionTable = ({ transactions }: TransactionTableProps) => {
 
     return () => clearTimeout(timer);
   }, [searchTerm]);
+
+  const {
+    loading: deleteLoading,
+    fn: deleteFn,
+    data: deleted
+  } = useFetch(DeleteManyTransaction);
+  const handleDeleteManyTransactions = async () => {
+    if (
+      !window.confirm("Are you sure you want to delete these transactions?")
+    ) {
+      return;
+    }
+    await deleteFn(selectedIds);
+    // Instead of local update, trigger parent refresh
+    if (refreshAccount) refreshAccount();
+    setSelectedIds([]);
+  }
+
+  // Single delete handler for row menu
+  const handleDeleteSingle = async (id: string) => {
+    await deleteFn([id]);
+    if (refreshAccount) refreshAccount();
+    setSelectedIds(prev => prev.filter(selId => selId !== id));
+  }
+
+  useEffect(() => {
+    if (deleted && !deleteLoading) {
+      toast.success("Transactions deleted successfully");
+
+    }
+  }, [deleted, deleteLoading]);
 
   // Memoized filtering and sorting logic
   const filteredAndSortedTransactions = useMemo(() => {
@@ -153,11 +190,6 @@ const TransactionTable = ({ transactions }: TransactionTableProps) => {
   function handleDelete(arg0: any[]): void {
     throw new Error('Function not implemented.')
   }
-  const handleDeleteMany = useCallback((ids: string[]) => {
-    // Implement delete logic here
-    console.log('Deleting transactions with IDs:', ids);
-    setSelectedIds([]);
-  }, []);
 
   return (
     <div className='space-y-4'>
@@ -170,6 +202,9 @@ const TransactionTable = ({ transactions }: TransactionTableProps) => {
         recurringFilter={recurringFilter}
         onRecurringFilterChange={setRecurringFilter}
       /> */}
+      {deleteLoading && (
+        <BarLoader className="mt-4" width={"100%"} color="#3b82f6" />
+      )}
 
       <div className='flex flex-col sm:flex-row gap-4'>
 
@@ -215,9 +250,9 @@ const TransactionTable = ({ transactions }: TransactionTableProps) => {
             <Button
               variant="destructive"
               size="sm"
-              onClick={() => handleDeleteMany(selectedIds)}
+              onClick={handleDeleteManyTransactions}
             >
-              <Trash2 className='h-4 w-4'/>
+              <Trash2 className='h-4 w-4' />
               Delete Selected ({selectedIds.length})
             </Button>
           )}
@@ -320,12 +355,12 @@ const TransactionTable = ({ transactions }: TransactionTableProps) => {
                           )
                         }
                       >
-                        <Edit />
+                        <Edit /> 
                         Edit
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem className='cursor-pointer text-destructive hover:bg-red-100'
-                        onClick={() => handleDelete([trans.id])}
+                        onClick={() => handleDeleteSingle(trans.id)}
                       >
                         <Trash2 className='text-destructive' />
                         Delete

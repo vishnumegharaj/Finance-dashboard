@@ -25,12 +25,14 @@ interface Account {
 const AccountPage = ({ params }: AccountParams) => {
     const resolvedParams = use(params);
     const [account, setAccount] = useState<Account | null>(null);
+    const [transactions, setTransactions] = useState<any[]>([]); // Local state for transactions
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const fetchAccount = useCallback(async () => {
+    // Accept skipLoading argument to avoid spinner on silent refresh
+    const fetchAccount = useCallback(async (skipLoading: boolean) => {
         try {
-            setLoading(true);
+            if (!skipLoading) setLoading(true);
             setError(null);
             
             const result = await getAccountById(resolvedParams.id);
@@ -39,19 +41,19 @@ const AccountPage = ({ params }: AccountParams) => {
                 setError('Account not found');
                 return;
             }
-            
             setAccount(result.data);
+            setTransactions(result.data.transactions || []); // Set local transactions
             console.log("Account Data:", result.data);
         } catch (err) {
             console.error('Error loading account:', err);
             setError('Error loading account');
         } finally {
-            setLoading(false);
+            if (!skipLoading) setLoading(false);
         }
     }, [resolvedParams.id]);
 
     useEffect(() => {
-        fetchAccount();
+        fetchAccount(false);
     }, [fetchAccount]);
 
     // Loading state
@@ -72,7 +74,7 @@ const AccountPage = ({ params }: AccountParams) => {
             <div className="p-8 text-center text-lg text-red-600">
                 {error}
                 <button 
-                    onClick={fetchAccount}
+                    onClick={ () => fetchAccount(false)}
                     className="ml-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
                     Retry
@@ -85,6 +87,11 @@ const AccountPage = ({ params }: AccountParams) => {
     if (!account) {
         return <div className="p-8 text-center text-lg">Account not found</div>;
     }
+
+    // Pass a silent refresh function to TransactionTable
+    const refreshAccount = () => fetchAccount(true);
+    // Button handler for manual refresh (with loading)
+    const handleRefreshClick = () => { fetchAccount(false); };
 
     return (
         <div className="p-4">
@@ -105,11 +112,15 @@ const AccountPage = ({ params }: AccountParams) => {
             </div>
 
             {/* transaction table */}
-            <TransactionTable transactions={account.transactions} />
+            <TransactionTable 
+                transactions={transactions} 
+                onTransactionsChange={setTransactions}
+                refreshAccount={refreshAccount} // Pass silent refresh
+            />
             
             {/* Optional: Refresh button */}
             <button 
-                onClick={fetchAccount}
+                onClick={handleRefreshClick}
                 className="mt-4 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
             >
                 Refresh Data
