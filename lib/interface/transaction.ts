@@ -14,15 +14,15 @@ export interface Transaction {
   type: TransactionType;
   source: string;
   amount: number;
-  description?: string;
+  description?: string | null;
   date: Date;
   category: string;
-  receiptUrl?: string;
+  receiptUrl?: string | null;
   isRecurring?: boolean;
-  recurringInterval?: RecurringInterval;
-  nextRecurringDate?: Date;
-  lastProcessed?: Date;
-  status?: TransactionStatus;
+  recurringInterval?: RecurringInterval | null;
+  nextRecurringDate?: Date | null;
+  lastProcessed?: Date | null;
+  status?: TransactionStatus | null;
   userId: string;
   accountId: string;
 }

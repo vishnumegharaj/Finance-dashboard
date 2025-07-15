@@ -113,7 +113,7 @@ export async function CreateTransaction(data: Transaction) {
         const balanceChange = data.type === "INCOME" ? data.amount : -data.amount;
 
         await db.account.update({
-            where: { id: data.accountId},
+            where: { id: data.accountId },
             data: {
                 balance: {
                     increment: balanceChange,
@@ -137,6 +137,125 @@ export async function CreateTransaction(data: Transaction) {
         }
         return { success: false, error: "An unexpected error occurred." };
     }
+}
+
+export async function getTransactionById(transactionId: string) {
+    try {
+        const { userId } = await auth();
+        if (!userId) throw new Error("Unauthorised");
+
+        const user = await db.user.findUnique({
+            where: { clerkUserId: userId },
+        });
+
+        if (!user) throw new Error("User not found");
+
+        const transaction = await db.transaction.findUnique({
+            where: {
+                id: transactionId,
+                userId: user.id,
+            },
+            include: {
+                account: true,
+            }
+        });
+
+        if (!transaction) return null;
+
+        // Serialize the amount before returning
+        const serializedTransaction = {
+            ...transaction,
+            amount: transaction.amount.toNumber(),
+            account: {
+                ...transaction.account,
+                balance: serializeBalance(transaction.account.balance), // Convert Decimal to number
+            },
+        };
+
+        return {
+            success: true,
+            data: serializedTransaction,
+        };
+    } catch (error) {
+        if (error instanceof Error) {
+            return { success: false, error: error.message };
+        }
+        return { success: false, error: "An unexpected error occurred." };
+    }
+
+}
+
+export async function updateTransactionById(transactionId: string, data: Transaction) {
+    try {
+        console.log("inside updating....", data);
+        const { userId } = await auth();
+        if (!userId) throw new Error("Unauthorised");
+
+        const user = await db.user.findUnique({
+            where: { clerkUserId: userId },
+        });
+
+        if (!user) throw new Error("User not found");
+
+        const transaction = await db.transaction.findUnique({
+            where: {
+                id: transactionId,
+                userId: user.id,
+            },
+        });
+
+        if (!transaction) throw new Error("Transaction not found");
+
+        const oldBalanceChange = transaction.type === "INCOME" ? transaction.amount.toNumber() : -transaction.amount.toNumber();
+
+        const newBalanceChange = data.type === "INCOME"
+            ? Number(data.amount)
+            : -Number(data.amount);
+
+        const netBalanceChange = newBalanceChange - oldBalanceChange;
+
+        const updatedTransaction = await db.$transaction(async (tx) => {
+            const updated = await tx.transaction.update({
+                where: {
+                    id: transactionId,
+                    userId: user.id,
+                },
+                data: {
+                    ...data,
+                    nextRecurringDate: data.isRecurring && data.recurringInterval ? calculateNextRecurringDate(data.date, data.recurringInterval) : null,
+                },
+            });
+
+            await tx.account.update({
+                where: { id: data.accountId },
+                data: {
+                    balance: {
+                        increment: netBalanceChange,
+                    },
+                },
+            });
+            return updated;
+        });
+
+
+        revalidatePath(`/dashboard`);
+        revalidatePath(`/account/${data.accountId}`);
+
+        return {
+            success: true,
+            data: {
+                ...updatedTransaction,
+                amount: updatedTransaction.amount.toNumber(),
+            },
+        };
+    } catch (error) {
+        console.warn("error updating trans", error);
+        if (error instanceof Error) {
+            return { success: false, error: error.message };
+        }
+        return { success: false, error: error };
+    }
+
 }
 
 const serializeBalance = (balance: Decimal) => {

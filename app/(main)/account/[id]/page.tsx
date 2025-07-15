@@ -5,6 +5,7 @@ import { getAccountById } from '@/actions/accounts';
 import TransactionTable from '../_components/transaction-table';
 import { BarLoader } from 'react-spinners';
 
+
 interface AccountParams {
     params: Promise<{
         id: string;

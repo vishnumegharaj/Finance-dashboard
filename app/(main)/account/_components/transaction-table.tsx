@@ -351,7 +351,7 @@ const TransactionTable = ({ transactions, onTransactionsChange, refreshAccount }
                       <DropdownMenuItem className='cursor-pointer hover:bg-blue-100'
                         onClick={() =>
                           router.push(
-                            `/transactions/create?edit=${trans.id}`
+                            `/transaction/create?edit=${trans.id}`
                           )
                         }
                       >

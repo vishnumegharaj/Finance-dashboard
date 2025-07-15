@@ -15,6 +15,7 @@ const useFetch = (cb: Function) => {
             console.log("Fetching data with args:", args);
 
             const response = await cb(...args);
+            console.log(response);
 
             if (response && !response.success === true) {
                 throw new Error(response.message || "Unknown error");
