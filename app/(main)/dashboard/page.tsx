@@ -21,6 +21,7 @@ function DashboardPage() {
     try {
       setIsRefreshing(true);
       const response = await getAccounts();
+      console.log("Fetched Accounts:", response.data);
       setAccounts(response.data);
     } catch (error) {
       console.error('Error fetching accounts:', error);

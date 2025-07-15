@@ -1,6 +1,5 @@
 // Assuming these enums exist in your codebase
 import { 
-  Transaction,
   TransactionType,
   RecurringInterval,
   TransactionStatus 

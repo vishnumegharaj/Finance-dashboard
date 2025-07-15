@@ -3,6 +3,8 @@ import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { _success } from "zod/v4/core";
+import { Transaction } from "@prisma/client";
+import { Decimal } from "@prisma/client/runtime/library";
 
 
 export async function DeleteManyTransaction(transactionIds: string[]) {
@@ -71,4 +73,93 @@ export async function DeleteManyTransaction(transactionIds: string[]) {
         }
         return { success: false, error: "An unexpected error occurred." };
     }
+}
+
+export async function CreateTransaction(data: Transaction) {
+    try {
+        console.log("Creating transaction with data:", data);
+        const { userId } = await auth();
+        if (!userId) throw new Error("Unauthorised");
+
+        const user = await db.user.findUnique({
+            where: { clerkUserId: userId },
+        });
+
+        if (!user) throw new Error("User not found");
+
+        //arcjet to add rate limiting
+
+        const account = await db.account.findUnique({
+            where: {
+                id: data.accountId,
+                userId: user.id,
+            }
+        });
+
+        if (!account) throw new Error("Account not found");
+
+        const transaction = await db.$transaction(async (tx) => {
+            const newTransaction = await tx.transaction.create({
+                data: {
+                    ...data,
+                    userId: user.id,
+                    nextRecurringDate: data.isRecurring && data.recurringInterval ? calculateNextRecurringDate(data.date, data.recurringInterval) : null,
+                }
+            })
+            return newTransaction
+        });
+
+        // Update account balance
+        const balanceChange = data.type === "INCOME" ? data.amount : -data.amount;
+
+        await db.account.update({
+            where: { id: data.accountId},
+            data: {
+                balance: {
+                    increment: balanceChange,
+                },
+            },
+        });
+
+        revalidatePath(`/dashboard`);
+        revalidatePath(`/account/${data.accountId}`);
+
+        return {
+            success: true,
+            data: {
+                ...transaction,
+                amount: transaction.amount.toNumber(), // Serialize amount
+            },
+        };
+    } catch (error) {
+        if (error instanceof Error) {
+            return { success: false, error: error.message };
+        }
+        return { success: false, error: "An unexpected error occurred." };
+    }
+}
+
+const serializeBalance = (balance: Decimal) => {
+    return balance.toNumber();
+};
+
+function calculateNextRecurringDate(startDate: string | number | Date, interval: string) {
+    const date = new Date(startDate);
+
+    switch (interval) {
+        case "DAILY":
+            date.setDate(date.getDate() + 1);
+            break;
+        case "WEEKLY":
+            date.setDate(date.getDate() + 7);
+            break;
+        case "MONTHLY":
+            date.setMonth(date.getMonth() + 1);
+            break;
+        case "YEARLY":
+            date.setFullYear(date.getFullYear() + 1);
+            break;
+    }
+
+    return date;
 }
