@@ -3,12 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import { Footer } from "@/components/home/footer";
-import {
-  ClerkProvider,
-} from '@clerk/nextjs'
 import { Toaster } from "@/components/ui/sonner"
-import { PerformanceMonitor } from "@/components/PerformanceMonitor"
-import { UserProvider } from "@/components/UserProvider"
+// import { PerformanceMonitor } from "@/components/PerformanceMonitor"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -26,18 +22,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body className={`${inter.className}`}>
-          {process.env.NODE_ENV === 'development' && <PerformanceMonitor />}
-          <UserProvider>
-            <Header />
-            <main className="min-h-screen">{children}</main>
-            <Toaster richColors/>
-            <Footer />
-          </UserProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="en">
+      <body className={`${inter.className}`}>
+        {/* {process.env.NODE_ENV === 'development' && <PerformanceMonitor />} */}
+        <Header />
+        <main className="min-h-screen">{children}</main>
+        <Toaster position="top-center" richColors />
+        
+      </body>
+    </html>
   );
 }

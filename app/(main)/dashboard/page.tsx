@@ -9,13 +9,11 @@ import { AccountTypeTypes } from '@/actions/dashboard';
 import { Banknote, Star, User, Briefcase, PiggyBank, Wallet } from "lucide-react";
 import { BarLoader } from 'react-spinners/';
 import { Card } from '@/components/ui/card';
-import { useUserContext } from '@/components/UserProvider';
 
 function DashboardPage() {
   const [accounts, setAccounts] = useState<AccountInterface[]>([]);
-  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [isInitialLoading, setIsInitialLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const { isUserInitialized } = useUserContext();
   
   const fetchAccounts = async () => {
     try {
@@ -31,12 +29,9 @@ function DashboardPage() {
     }
   };
 
-  // Fetch accounts after user is initialized
-  useEffect(() => {
-    if (isUserInitialized) {
-      fetchAccounts();
-    }
-  }, [isUserInitialized]);
+  useEffect(() =>{
+    fetchAccounts();
+  }, [])
 
   // Dummy income/expense for demo
   const dummyData = [

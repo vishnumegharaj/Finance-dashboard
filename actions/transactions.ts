@@ -1,29 +1,23 @@
 "use server";
 import { db } from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { _success } from "zod/v4/core";
 import { Transaction } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
+import { getAuthenticatedUser } from "./auth";
 
 
 export async function DeleteManyTransaction(transactionIds: string[]) {
     try {
-        const { userId } = await auth();
-        if (!userId) throw new Error("Unauthorised");
-
-        const user = await db.user.findUnique({
-            where: { clerkUserId: userId },
-        });
-
-        if (!user) throw new Error("User not found");
+        const supabaseUser = await getAuthenticatedUser();
+        const userId = supabaseUser.id; // UUID from auth.users
 
         const transactions = await db.transaction.findMany({
             where: {
                 id: {
                     in: transactionIds,
                 },
-                userId: user.id,
+                userId
             }
         })
 
@@ -43,14 +37,14 @@ export async function DeleteManyTransaction(transactionIds: string[]) {
                     id: {
                         in: transactionIds,
                     },
-                    userId: user.id,
+                    userId
                 }
 
             });
 
             for (const [accountId, BalanceChange] of Object.entries(accountBalanceChanges)) {
                 await tx.account.update({
-                    where: { id: accountId, userId: user.id },
+                    where: { id: accountId, userId },
                     data: {
                         balance: {
                             increment: BalanceChange,
@@ -77,22 +71,15 @@ export async function DeleteManyTransaction(transactionIds: string[]) {
 
 export async function CreateTransaction(data: Transaction) {
     try {
-        console.log("Creating transaction with data:", data);
-        const { userId } = await auth();
-        if (!userId) throw new Error("Unauthorised");
-
-        const user = await db.user.findUnique({
-            where: { clerkUserId: userId },
-        });
-
-        if (!user) throw new Error("User not found");
+        const supabaseUser = await getAuthenticatedUser();
+        const userId = supabaseUser.id; // UUID from auth.users
 
         //arcjet to add rate limiting
 
         const account = await db.account.findUnique({
             where: {
                 id: data.accountId,
-                userId: user.id,
+                userId
             }
         });
 
@@ -102,7 +89,7 @@ export async function CreateTransaction(data: Transaction) {
             const newTransaction = await tx.transaction.create({
                 data: {
                     ...data,
-                    userId: user.id,
+                    userId,
                     nextRecurringDate: data.isRecurring && data.recurringInterval ? calculateNextRecurringDate(data.date, data.recurringInterval) : null,
                 }
             })
@@ -141,19 +128,13 @@ export async function CreateTransaction(data: Transaction) {
 
 export async function getTransactionById(transactionId: string) {
     try {
-        const { userId } = await auth();
-        if (!userId) throw new Error("Unauthorised");
-
-        const user = await db.user.findUnique({
-            where: { clerkUserId: userId },
-        });
-
-        if (!user) throw new Error("User not found");
+        const supabaseUser = await getAuthenticatedUser();
+        const userId = supabaseUser.id; // UUID from auth.users
 
         const transaction = await db.transaction.findUnique({
             where: {
                 id: transactionId,
-                userId: user.id,
+                userId
             },
             include: {
                 account: true,
@@ -187,20 +168,13 @@ export async function getTransactionById(transactionId: string) {
 
 export async function updateTransactionById(transactionId: string, data: Transaction) {
     try {
-        console.log("inside updating....", data);
-        const { userId } = await auth();
-        if (!userId) throw new Error("Unauthorised");
-
-        const user = await db.user.findUnique({
-            where: { clerkUserId: userId },
-        });
-
-        if (!user) throw new Error("User not found");
+        const supabaseUser = await getAuthenticatedUser();
+        const userId = supabaseUser.id; // UUID from auth.users
 
         const transaction = await db.transaction.findUnique({
             where: {
                 id: transactionId,
-                userId: user.id,
+                userId
             },
         });
 
@@ -218,7 +192,7 @@ export async function updateTransactionById(transactionId: string, data: Transac
             const updated = await tx.transaction.update({
                 where: {
                     id: transactionId,
-                    userId: user.id,
+                    userId
                 },
                 data: {
                     ...data,

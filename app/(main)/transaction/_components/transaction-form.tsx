@@ -153,13 +153,13 @@ const AddTransactionForm = ({ accounts, editMode, transaction }: Props) => {
   }, [transactionResult, transactionLoading, editMode]);
 
   // Show loading state if accounts aren't loaded yet
-  if (!accounts || accounts.length === 0) {
-    return (
-      <div className="max-w-xl mx-auto bg-white dark:bg-zinc-900 p-6 rounded-lg shadow">
-        <div className="text-center">Loading accounts...</div>
-      </div>
-    );
-  }
+  // if (!accounts || accounts.length === 0) {
+  //   return (
+  //     <div className="max-w-xl mx-auto bg-white dark:bg-zinc-900 p-6 rounded-lg shadow">
+  //       <div className="text-center">Loading accounts...</div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full m-0 ">

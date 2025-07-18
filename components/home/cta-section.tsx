@@ -14,7 +14,7 @@ export function CTASection() {
           free trial today and see the difference.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link href="/sign-up">
+          <Link href="/sign-up" prefetch={true}>
             <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100">
               Start Free Trial
               <ArrowRight className="ml-2 h-5 w-5" />

@@ -2,6 +2,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "../lib/prisma";
 import { Decimal } from "@prisma/client/runtime/library";
+import { getAuthenticatedUser } from "./auth";
 export type AccountTypeTypes =
   | "personal"
   | "work"
@@ -18,24 +19,15 @@ export interface Account {
 
 export async function createAccount(data: Account) {
   try {
-    console.log("Creating account with data:", data);
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorised");
-
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
-    if (!user) throw new Error("User not found");
+    const supabaseUser = await getAuthenticatedUser();
+    const userId = supabaseUser.id; // UUID from auth.users
 
     //convert balance to float before saving
     const balanceFloat = parseFloat(data.balance.toString());
     if (isNaN(balanceFloat)) throw new Error("Invalid balance value");
 
     const existingAccounts = await db.account.findMany({
-      where: {
-        userId: user.id,
-      },
+      where: { userId },
     });
 
     const shouldBeDefault = existingAccounts.length === 0 ? true : data.isDefault;
@@ -43,10 +35,7 @@ export async function createAccount(data: Account) {
     if (shouldBeDefault) {
       // Set all other accounts to not default
       await db.account.updateMany({
-        where: {
-          userId: user.id,
-          isDefault: true,
-        },
+        where: { userId, isDefault: true },
         data: {
           isDefault: false,
         },
@@ -56,7 +45,7 @@ export async function createAccount(data: Account) {
     const account = await db.account.create({
       data: {
         ...data,
-        userId: user.id,
+        userId,
         balance: balanceFloat,
         isDefault: shouldBeDefault,
       },
@@ -83,26 +72,20 @@ export async function createAccount(data: Account) {
 }
 
 export async function getAccounts() {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorised");
+  console.log("fetching accounts ")
+  const supabaseUser = await getAuthenticatedUser();
+  const userId = supabaseUser.id; 
 
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
   const accounts = await db.account.findMany({
-    where: {
-      userId: user.id,
-    },
+    where: { userId },
     orderBy: {
       createdAt: "desc",
     },
-    include:{
+    include: {
       _count: {
         select: {
           transactions: true,
-        },  
+        },
       },
     }
   });
@@ -113,6 +96,7 @@ export async function getAccounts() {
     balance: serializeBalance(account.balance),
   }));
 
+   console.log("fetching completed ")
   return {
     success: true,
     data: serializedAccounts,

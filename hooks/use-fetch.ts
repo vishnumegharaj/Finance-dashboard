@@ -1,6 +1,5 @@
 const { useState, useEffect } = require('react');
 import { toast } from "sonner"
-import { Account } from "@/actions/dashboard"
 
 const useFetch = (cb: Function) => {
     const [data, setData] = useState(null);

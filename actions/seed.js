@@ -3,10 +3,10 @@
 import { db } from "@/lib/prisma";
 import { subDays } from "date-fns";
 
-const ACCOUNT_ID = "01d17d12-5717-4251-ad71-25d2c48afa48";
-const USER_ID = "b865fa58-d692-4748-8280-bcc39e406e9e";
+// const ACCOUNT_ID = "19ae0fce-f0c5-4eba-9a08-20d02604e4f5";
+// const USER_ID = "1cc454fe-ae1d-4965-922a-f60f5ec6fe68";
 
-// Categories with their typical amount ranges
+// Categories with amount ranges
 const CATEGORIES = {
   INCOME: [
     { name: "salary", range: [5000, 8000] },
@@ -28,79 +28,120 @@ const CATEGORIES = {
   ],
 };
 
-// Helper to generate random amount within a range
+// Sources for transactions
+const SOURCES = {
+  INCOME: [
+    "Employer Payroll",
+    "Freelance Client",
+    "Broker Payout",
+    "Investment Return",
+    "Refund Credit",
+    "Bonus",
+  ],
+  EXPENSE: {
+    housing: ["Landlord", "RentCo", "Mortgage Bank"],
+    transportation: ["Uber", "Ola", "Metro Card", "Fuel Station"],
+    groceries: ["BigBazaar", "Reliance Fresh", "Local Market"],
+    utilities: ["Electric Board", "Water Dept", "Internet Provider"],
+    entertainment: ["Netflix", "Hotstar", "Movie Ticket"],
+    food: ["Swiggy", "Zomato", "Restaurant"],
+    shopping: ["Amazon", "Flipkart", "Local Store"],
+    healthcare: ["Pharmacy", "Clinic", "Hospital"],
+    education: ["Online Course", "Books Store", "Training Center"],
+    travel: ["IRCTC", "Airline", "Bus Booking"],
+    "other-income": ["Misc Credit"],
+  },
+};
+
+// Helpers
 function getRandomAmount(min, max) {
   return Number((Math.random() * (max - min) + min).toFixed(2));
 }
 
-// Helper to get random category with amount
-function getRandomCategory(type) {
-  const categories = CATEGORIES[type];
-  const category = categories[Math.floor(Math.random() * categories.length)];
-  const amount = getRandomAmount(category.range[0], category.range[1]);
-  return { category: category.name, amount };
+function getRandomFrom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
 }
 
+function getRandomCategory(type) {
+  const categories = CATEGORIES[type];
+  const cat = getRandomFrom(categories);
+  const amount = getRandomAmount(cat.range[0], cat.range[1]);
+  return { category: cat.name, amount };
+}
+
+function getSource(type, category) {
+  if (type === "INCOME") {
+    return getRandomFrom(SOURCES.INCOME);
+  }
+  const pool = SOURCES.EXPENSE[category] || ["Vendor", "Merchant", "Payment"];
+  return getRandomFrom(pool);
+}
+
+// Main seeder
 export async function seedTransactions() {
   try {
-    // Generate 90 days of transactions
     const transactions = [];
     let totalBalance = 0;
 
+    // Generate 90 days of transactions
     for (let i = 90; i >= 0; i--) {
       const date = subDays(new Date(), i);
+      const txCount = Math.floor(Math.random() * 3) + 1; // 1-3 per day
 
-      // Generate 1-3 transactions per day
-      const transactionsPerDay = Math.floor(Math.random() * 3) + 1;
-
-      for (let j = 0; j < transactionsPerDay; j++) {
-        // 40% chance of income, 60% chance of expense
+      for (let j = 0; j < txCount; j++) {
         const type = Math.random() < 0.4 ? "INCOME" : "EXPENSE";
         const { category, amount } = getRandomCategory(type);
+        const source = getSource(type, category);
 
-        const transaction = {
+        const desc =
+          type === "INCOME"
+            ? `Received ${category} from ${source}`
+            : `Paid ${source} for ${category}`;
+
+        transactions.push({
           id: crypto.randomUUID(),
           type,
+          source,
           amount,
-          description: `${
-            type === "INCOME" ? "Received" : "Paid for"
-          } ${category}`,
+          description: desc,
           date,
           category,
+          receiptUrl: null,
+          isRecurring: false,
+          recurringInterval: null,
+          nextRecurringDate: null,
+          lastProcessed: null,
           status: "COMPLETED",
           userId: USER_ID,
           accountId: ACCOUNT_ID,
           createdAt: date,
           updatedAt: date,
-        };
+        });
 
         totalBalance += type === "INCOME" ? amount : -amount;
-        transactions.push(transaction);
       }
     }
 
-    // Insert transactions in batches and update account balance
-    await db.$transaction(async (tx) => {
-      // Clear existing transactions
-      await tx.transaction.deleteMany({
-        where: { accountId: ACCOUNT_ID },
-      });
+    // 1. Clear existing transactions
+    await db.transaction.deleteMany({ where: { accountId: ACCOUNT_ID } });
 
-      // Insert new transactions
-      await tx.transaction.createMany({
-        data: transactions,
-      });
+    // 2. Insert new transactions in chunks
+    const chunkSize = 500;
+    for (let i = 0; i < transactions.length; i += chunkSize) {
+      const chunk = transactions.slice(i, i + chunkSize);
+      await db.transaction.createMany({ data: chunk });
+    }
 
-      // Update account balance
-      await tx.account.update({
-        where: { id: ACCOUNT_ID },
-        data: { balance: totalBalance },
-      });
+    // 3. Update account balance
+    await db.account.update({
+      where: { id: ACCOUNT_ID },
+      data: { balance: totalBalance },
     });
 
     return {
       success: true,
-      message: `Created ${transactions.length} transactions`,
+      message: `Created ${transactions.length} transactions.`,
+      balance: totalBalance,
     };
   } catch (error) {
     console.error("Error seeding transactions:", error);
