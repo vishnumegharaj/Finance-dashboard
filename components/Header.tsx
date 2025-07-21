@@ -5,6 +5,8 @@ import { Button } from './ui/button';
 import { createClient } from '@/utils/supabase/client'; // Make sure this is the client-side version
 import Logout from './logout';
 import type { User } from '@supabase/supabase-js'; // Add this import
+import Image from 'next/image';
+
 
 const Header = () => {
     const [user, setUser] = useState<User | null>(null);
@@ -21,9 +23,11 @@ const Header = () => {
 
             <nav>
                 <Link href="/" className="flex items-center gap-2">
-                    <img
+                    <Image
                         src="/images/logo.png"
                         alt="FinanceFlow Logo"
+                        width={36}  // same as w-9 (9 * 4px = 36px)
+                        height={36} // same as h-9
                         className="w-9 h-9"
                     />
                     <span className="font-bold text-xl text-primary-gradient bg-clip-text text-transparent">
@@ -47,7 +51,7 @@ const Header = () => {
             {!user ? (
                 <div className="flex items-center gap-4">
                     <Link href="/login" prefetch={true}>
-                        <Button variant={"outline"} className="bg-white text-primary border border-primary cursor-pointer">
+                        <Button variant={"outline"} className="">
                             Login
                         </Button>
                     </Link>

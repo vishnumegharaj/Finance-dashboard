@@ -26,13 +26,3 @@ export interface Transaction {
   userId: string;
   accountId: string;
 }
-
-// For database operations where you might not have all fields
-interface TransactionCreate extends Omit<Transaction, 'userId' | 'accountId'> {
-  userId: string;
-  accountId: string;
-}
-
-interface TransactionUpdate extends Partial<Transaction> {
-  id: string;
-}

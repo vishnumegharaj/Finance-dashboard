@@ -14,8 +14,6 @@ const CreateTransactionPage = () => {
   const editId = searchParams.get('edit'); // ✅ access query param
 
   const [accounts, setAccounts] = useState<AccountInterface[]>([]);
-  const [isInitialLoading, setIsInitialLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [transaction, setTransaction] = useState<Transaction | null>(null);
 
   useEffect(() => {
@@ -36,17 +34,17 @@ const CreateTransactionPage = () => {
 
   const fetchAccounts = async () => {
     try {
-      setIsRefreshing(true);
       const response = await getAccounts();
       console.log("Fetched Accounts:", response.data);
       setAccounts(response.data);
     } catch (error) {
       console.error('Error fetching accounts:', error);
-    } finally {
-      setIsInitialLoading(false);
-      setIsRefreshing(false);
-    }
+    } 
   };
+
+  useEffect(()=>{
+    fetchAccounts();
+  }, []);
 
   return (
     <div className='w-fit flex flex-col justify-center items-center mx-auto border border-gray-100 bg-white dark:bg-zinc-900 p-7 rounded-lg shadow'>

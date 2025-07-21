@@ -17,7 +17,7 @@ export interface Account {
   isDefault: boolean;
 }
 
-export async function createAccount(data: Account) {
+export async function createAccount(data: Account): Promise<{ success: boolean; data: any; }> {
   try {
     const supabaseUser = await getAuthenticatedUser();
     const userId = supabaseUser.id; // UUID from auth.users
@@ -71,7 +71,7 @@ export async function createAccount(data: Account) {
   }
 }
 
-export async function getAccounts() {
+export async function getAccounts(): Promise<{ success: boolean; data: any; }> {
   console.log("fetching accounts ")
   const supabaseUser = await getAuthenticatedUser();
   const userId = supabaseUser.id; 

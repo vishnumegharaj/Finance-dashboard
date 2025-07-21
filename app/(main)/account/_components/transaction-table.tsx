@@ -1,9 +1,8 @@
 'use client'
-import React, { useMemo, useCallback, useState, useEffect } from 'react'
+import React, { useMemo, useCallback, useEffect } from 'react'
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableFooter,
   TableHead,
@@ -38,12 +37,11 @@ import { BarLoader } from 'react-spinners'
 
 // ✅ CORRECTED: Proper props typing and parameter destructuring
 interface TransactionTableProps {
-  transactions: Transaction[];
-  onTransactionsChange?: (txs: Transaction[]) => void; // Optional callback for parent update
+  transactions: Transaction[]; 
   refreshAccount?: () => void; // New prop for silent refresh
 }
 
-const TransactionTable = ({ transactions, onTransactionsChange, refreshAccount }: TransactionTableProps) => {
+const TransactionTable = ({ transactions, refreshAccount }: TransactionTableProps) => {
   const router = useRouter();
 
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
@@ -126,7 +124,8 @@ const TransactionTable = ({ transactions, onTransactionsChange, refreshAccount }
 
     // Apply sorting
     filtered.sort((a, b) => {
-      let aValue: any, bValue: any;
+      let aValue: string | number | undefined;
+      let bValue: string | number | undefined;
 
       switch (sortConfig.field) {
         case 'date':
@@ -350,7 +349,7 @@ const TransactionTable = ({ transactions, onTransactionsChange, refreshAccount }
                           )
                         }
                       >
-                        <Edit /> 
+                        <Edit />
                         Edit
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />

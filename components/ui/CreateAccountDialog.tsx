@@ -1,12 +1,11 @@
-'use client'
-import React, { useEffect } from 'react'
+'use client';
+import React, { useEffect } from 'react';
 import {
     Dialog,
     DialogTrigger,
     DialogContent,
     DialogHeader,
     DialogTitle,
-    DialogDescription
 } from "@/components/ui/dialog";
 import {
     Select,
@@ -14,9 +13,9 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { accountSchema } from '@/app/lib/schema';
 import { Switch } from './switch';
@@ -26,24 +25,27 @@ import { createAccount } from '@/actions/dashboard';
 import { AccountTypeTypes } from '@/lib/interface';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { z } from 'zod';
 
+// Account types list
 const accountTypes = [
     { value: "personal", label: "Personal", icon: "👤", description: "Personal expenses and income" },
     { value: "work", label: "Work", icon: "💼", description: "Work-related expenses and salary" },
     { value: "business", label: "Business", icon: "🏢", description: "Business operations and revenue" },
     { value: "savings", label: "Savings", icon: "🏦", description: "Savings and emergency funds" },
     { value: "investment", label: "Investment", icon: "📈", description: "Investment accounts and portfolios" },
-]
+];
 
+// Props
 type CreateAccountDialogProps = {
-  children: React.ReactNode;
-  fetchAccounts: () => Promise<void>;
+    children: React.ReactNode;
+    fetchAccounts: () => Promise<void>;
 };
 
-const CreateAccountDialog = (
-    { children, fetchAccounts }: CreateAccountDialogProps
-) => {
+// Infer type from Zod schema
+type AccountFormData = z.infer<typeof accountSchema>;
 
+const CreateAccountDialog = ({ children, fetchAccounts }: CreateAccountDialogProps) => {
     const [open, setOpen] = React.useState(false);
 
     const {
@@ -52,22 +54,24 @@ const CreateAccountDialog = (
         formState: { errors },
         setValue,
         watch,
-        reset
-    } = useForm({
+        reset,
+    } = useForm<AccountFormData>({
         resolver: zodResolver(accountSchema),
         defaultValues: {
             name: "",
+            type: "personal",
             balance: "",
             isDefault: false,
         },
     });
 
-    const { data: newAccount, setData, error, loading: createAccountLoading, fn: createAccountFn } = useFetch(createAccount)
+    const { data: newAccount, error, loading: createAccountLoading, fn: createAccountFn } = useFetch(createAccount);
 
-    const onSubmit = async (data: any) => {
-        await createAccountFn(data);
+    const onSubmit: SubmitHandler<AccountFormData> = (data) => {
+        createAccountFn(data);
     };
 
+    // Success Effect
     useEffect(() => {
         if (newAccount && !createAccountLoading) {
             toast.success("Account created successfully!");
@@ -75,18 +79,13 @@ const CreateAccountDialog = (
             setOpen(false);
             fetchAccounts();
         }
-        if (error) {
-            console.error("Error creating account:", error);
-            // Optionally, you can show an error message to the user
-        }
     }, [newAccount, createAccountLoading]);
 
+    // Error Effect
     useEffect(() => {
-
         if (error) {
             toast.error(error.message || "Failed to create account. Please try again.");
             console.error("Error creating account:", error);
-            // Optionally, you can show an error message to the user
         }
     }, [error]);
 
@@ -102,7 +101,8 @@ const CreateAccountDialog = (
                         onSubmit={handleSubmit(onSubmit)}
                         className="flex flex-col gap-3"
                     >
-                        <div className="">
+                        {/* Account Name */}
+                        <div>
                             <label htmlFor="name">Account Name</label>
                             <Input
                                 id="name"
@@ -114,7 +114,9 @@ const CreateAccountDialog = (
                                 <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>
                             )}
                         </div>
-                        <div className="">
+
+                        {/* Account Type */}
+                        <div>
                             <label htmlFor="type">Account Type</label>
                             <Select
                                 onValueChange={(value) => setValue("type", value as AccountTypeTypes)}
@@ -141,8 +143,10 @@ const CreateAccountDialog = (
                                 <p className="text-xs text-red-500 mt-1">{errors.type.message}</p>
                             )}
                         </div>
-                        <div className="">
-                            <label htmlFor="name">Initial Balance</label>
+
+                        {/* Initial Balance */}
+                        <div>
+                            <label htmlFor="balance">Initial Balance</label>
                             <Input
                                 id="balance"
                                 type="number"
@@ -154,6 +158,8 @@ const CreateAccountDialog = (
                                 <p className="text-xs text-red-500 mt-1">{errors.balance.message}</p>
                             )}
                         </div>
+
+                        {/* Default Switch */}
                         <div className="flex items-center justify-between gap-4 py-2 border rounded-lg px-4">
                             <div>
                                 <label htmlFor="isDefault" className="block text-sm font-medium text-gray-900">
@@ -170,6 +176,8 @@ const CreateAccountDialog = (
                                 aria-label="Set as Default"
                             />
                         </div>
+
+                        {/* Buttons */}
                         <div className="flex justify-end gap-2 mt-4">
                             <Button
                                 type="button"
@@ -181,10 +189,10 @@ const CreateAccountDialog = (
                             >
                                 Cancel
                             </Button>
-                            <Button type="submit" disabled={createAccountLoading}   >
+                            <Button type="submit" disabled={createAccountLoading}>
                                 {createAccountLoading ? (
                                     <>
-                                        <Loader2 className=' h-4 w-4 animate-spin' /> creating...
+                                        <Loader2 className='h-4 w-4 animate-spin' /> Creating...
                                     </>
                                 ) : (
                                     "Create Account"
@@ -195,7 +203,7 @@ const CreateAccountDialog = (
                 </div>
             </DialogContent>
         </Dialog>
-    )
-}
+    );
+};
 
-export default CreateAccountDialog
+export default CreateAccountDialog;

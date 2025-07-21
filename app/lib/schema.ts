@@ -1,4 +1,3 @@
-import { is } from 'date-fns/locale';
 import { z } from 'zod';
 
 // Login Schema
@@ -45,7 +44,7 @@ export const accountSchema = z.object({
     name: z.string().min(1, "Account name is required"),
     type: z.enum(["personal", "work", "business", "savings", "investment"]),
     balance: z.string().min(1, "Balance must be a positive number"),
-    isDefault: z.boolean().default(false),
+    isDefault: z.boolean().optional(),
 })
 
 export const transactionSchema = z.object({

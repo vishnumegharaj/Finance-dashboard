@@ -163,7 +163,7 @@ const SignupPage = () => {
         <div className="text-center mt-6">
           <p className="text-muted-foreground text-sm">
             Already have an account?{' '}
-            <Link href="/sign-in" prefetch className="text-primary hover:underline font-medium">
+            <Link href="/login" prefetch className="text-primary hover:underline font-medium">
               Log in
             </Link>
           </p>

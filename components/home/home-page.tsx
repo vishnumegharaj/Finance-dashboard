@@ -1,14 +1,9 @@
 "use client"
-
-import { Button } from "@/components/ui/button"
-import { ArrowRight } from "lucide-react"
-import Link from "next/link"
 import { HeroSection } from "./hero-section"
 import { FeaturesSection } from "./features-section"
 import { TestimonialsSection } from "./testimonials-section"
 import { PricingSection } from "./pricing-section"
 import { CTASection } from "./cta-section"
-import { Footer } from "./footer"
 
 export default function HomePage() {
   return (

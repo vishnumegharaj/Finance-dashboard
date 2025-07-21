@@ -116,7 +116,6 @@ const AccountPage = ({ params }: AccountParams) => {
             {/* transaction table */}
             <TransactionTable 
                 transactions={transactions} 
-                onTransactionsChange={setTransactions}
                 refreshAccount={refreshAccount} // Pass silent refresh
             />
             

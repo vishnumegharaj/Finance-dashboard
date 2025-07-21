@@ -1,5 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
-import React, { useMemo, useState, useEffect, use } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { AccountInterface } from '../../dashboard/page';
 import { z } from 'zod';
 import { useForm, Controller } from 'react-hook-form';
@@ -36,7 +37,6 @@ const AddTransactionForm = ({ accounts, editMode, transaction }: Props) => {
 
   const router = useRouter();
   const [datePickerOpen, setDatePickerOpen] = useState(false);
-  const [recurringEndDateOpen, setRecurringEndDateOpen] = useState(false);
 
   // Safe default values - wait for accounts to load
   const getDefaultAccountId = () => {
