@@ -7,19 +7,20 @@ import { signup } from '@/actions/auth';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Chrome } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { Eye, EyeOff, ArrowRight, Chrome } from 'lucide-react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import { z } from 'zod';
+
+type SignupFormData = z.infer<typeof signupSchema>;
 
 const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const router = useRouter();
   const supabase = createClientComponentClient();
-  const { register, handleSubmit, control, formState: { errors, isSubmitting } } = useForm({
+  const { register, handleSubmit, control, formState: { errors, isSubmitting } } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
       name: '',
@@ -31,7 +32,7 @@ const SignupPage = () => {
   });
   const [error, setError] = useState('');
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: SignupFormData) => {
     setError('');
     try {
       const fd = new FormData();
@@ -45,28 +46,27 @@ const SignupPage = () => {
       } else {
         toast.success(
           `A confirmation email has been sent to ${data.email}. Please confirm your email`,
-          {
-            duration: 10000,
-          }
+          { duration: 10000 }
         );
       }
-
-    } catch (err: any) {
-      setError(err.message || 'Failed to sign up');
-      toast.error("Sign up failed!", {
-        description: err.message || "Failed to sign up",
-        duration: 4000,
-      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to sign up';
+      setError(message);
+      toast.error("Sign up failed!", { description: message, duration: 4000 });
     }
   };
 
   const handleGoogleLogin = async () => {
     setError('');
     try {
-      const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + '/dashboard' } });
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin + '/dashboard' }
+      });
       if (error) setError(error.message);
-    } catch (err: any) {
-      setError(err.message || 'Google login failed');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Google login failed';
+      setError(message);
     }
   };
 
@@ -163,7 +163,7 @@ const SignupPage = () => {
         <div className="text-center mt-6">
           <p className="text-muted-foreground text-sm">
             Already have an account?{' '}
-            <Link href="/sign-in" prefetch={true} className="text-primary hover:underline font-medium">
+            <Link href="/sign-in" prefetch className="text-primary hover:underline font-medium">
               Log in
             </Link>
           </p>

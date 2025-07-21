@@ -7,15 +7,16 @@ import { login } from '@/actions/auth';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Chrome, ArrowRight } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { z } from 'zod';
+
+type LoginFormData = z.infer<typeof loginSchema>;
 
 const LoginPage = () => {
-  const router = useRouter();
   const supabase = createClientComponentClient();
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
@@ -24,32 +25,32 @@ const LoginPage = () => {
   });
   const [error, setError] = useState('');
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: LoginFormData) => {
     setError('');
     try {
       const fd = new FormData();
       fd.append('email', data.email);
       fd.append('password', data.password);
       const response = await login(fd);
-      if(!response.sucess){
+      if (!response.sucess) {
         toast.error(response.message);
         setError(response.message);
-      }else {
-        
       }
-      
-    } catch (err: any) {
-      setError(err.message || 'Failed to sign in');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to sign in');
     }
   };
 
   const handleGoogleLogin = async () => {
     setError('');
     try {
-      const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + '/dashboard' } });
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin + '/dashboard' },
+      });
       if (error) setError(error.message);
-    } catch (err: any) {
-      setError(err.message || 'Google login failed');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Google login failed');
     }
   };
 
@@ -97,7 +98,7 @@ const LoginPage = () => {
         </form>
         <div className="text-center mt-6">
           <p className="text-muted-foreground text-sm">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link href="/sign-up" prefetch={true} className="text-primary hover:underline font-medium">
               Sign up
             </Link>

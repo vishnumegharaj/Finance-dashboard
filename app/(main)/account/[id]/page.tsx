@@ -4,6 +4,7 @@ import React, { useState, useEffect, use, useCallback } from 'react';
 import { getAccountById } from '@/actions/accounts';
 import TransactionTable from '../_components/transaction-table';
 import { BarLoader } from 'react-spinners';
+import { Transaction } from '@/lib/interface/transaction';
 
 
 interface AccountParams {
@@ -20,13 +21,13 @@ interface Account {
     _count: {
         transactions: number;
     };
-    transactions: any[]; // Replace with proper Transaction type
+    transactions: Transaction[]; // Replace with proper Transaction type
 }
 
 const AccountPage = ({ params }: AccountParams) => {
     const resolvedParams = use(params);
     const [account, setAccount] = useState<Account | null>(null);
-    const [transactions, setTransactions] = useState<any[]>([]); // Local state for transactions
+    const [transactions, setTransactions] = useState<Transaction[]>([]); // Local state for transactions
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 

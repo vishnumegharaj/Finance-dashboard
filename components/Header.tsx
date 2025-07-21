@@ -33,10 +33,10 @@ const Header = () => {
             </nav>
 
             <div className="flex items-center gap-4">
-                <Link href="/dashboard" className="text-sm sm:text-base text-gray-600 hover:text-primary transition-colors">
+                <Link href="/dashboard" prefetch={true} className="text-sm sm:text-base text-gray-600 hover:text-primary transition-colors">
                     <span className='hidden md:inline'> Dashboard </span>
                 </Link>
-                <Link href="/transaction/create" className="text-sm sm:text-base text-gray-600 hover:text-primary transition-colors">
+                <Link href="/transaction/create" prefetch={true} className="text-sm sm:text-base text-gray-600 hover:text-primary transition-colors">
                     <span className='hidden md:inline'> Transactions </span>
                 </Link>
                 {/* <Link href="/settings" className="text-sm sm:text-base text-gray-600 hover:text-primary transition-colors">

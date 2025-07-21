@@ -24,12 +24,11 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Clock, Trash2, Edit, MoreHorizontal, Search } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Transaction } from '@prisma/client'
+import { Transaction } from '@/lib/interface/transaction';
 import { format } from 'date-fns'
 import { categoryColors } from '@/lib/data/categories'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
-import TransactionFilters from '@/components/TransactionFilters'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import useFetch from '@/hooks/use-fetch'
@@ -186,10 +185,6 @@ const TransactionTable = ({ transactions, onTransactionsChange, refreshAccount }
       return [...prev, id];
     })
   }, []);
-
-  function handleDelete(arg0: any[]): void {
-    throw new Error('Function not implemented.')
-  }
 
   return (
     <div className='space-y-4'>
