@@ -6,7 +6,7 @@ import { loginSchema } from '@/app/lib/schema';
 import { login } from '@/actions/auth';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Chrome, ArrowRight } from 'lucide-react';
+import { Chrome, ArrowRight, EyeOff, Eye } from 'lucide-react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -16,6 +16,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 const LoginPage = () => {
   const supabase = createClientComponentClient();
+  const [showPassword, setShowPassword] = useState(false);
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -81,13 +82,20 @@ const LoginPage = () => {
             />
             {errors.email && <span className="text-red-500 text-xs">{errors.email.message as string}</span>}
           </div>
-          <div>
+          <div className="relative">
             <Input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               placeholder="Password"
               {...register('password')}
               aria-invalid={!!errors.password}
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            </button>
             {errors.password && <span className="text-red-500 text-xs">{errors.password.message as string}</span>}
           </div>
           {error && <div className="text-red-500 text-sm text-center">{error}</div>}

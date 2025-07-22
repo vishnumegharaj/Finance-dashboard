@@ -157,6 +157,17 @@
   }
 }
 
+.hidden {
+  display: none; /* reset */
+}
+
+@media (min-width: 768px) {
+  .md\:inline {
+    display: inline !important; /* force Tailwind's behavior */
+  }
+}
+
+
 /*
 To enable automatic dark mode, add this script to your app/layout.tsx or _app.tsx:
 

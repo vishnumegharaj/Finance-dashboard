@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
-import { Toaster } from "@/components/ui/sonner"
-// import { PerformanceMonitor } from "@/components/PerformanceMonitor"
+import { Toaster } from "@/components/ui/sonner";
+// import { PerformanceMonitor } from "@/components/PerformanceMonitor";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -21,13 +21,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${inter.className}`}>
+    <html lang="en" className={inter.variable}>
+      <body className={inter.className}>
         {/* {process.env.NODE_ENV === 'development' && <PerformanceMonitor />} */}
         <Header />
         <main className="min-h-screen">{children}</main>
         <Toaster position="top-center" richColors />
-        
       </body>
     </html>
   );

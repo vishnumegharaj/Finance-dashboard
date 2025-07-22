@@ -12,6 +12,7 @@ const Logout = () => {
         e.preventDefault();
         setLoading(true);
         await logout();
+        window.location.href = "/login";
         setLoading(false);
     }
     return (
