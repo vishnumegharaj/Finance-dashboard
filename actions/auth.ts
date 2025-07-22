@@ -14,10 +14,10 @@ export async function getAuthenticatedUser() {
 }
 
 
-export async function getUserSession(){
+export async function getUserSession() {
   const supabase = await createClient();
-  const {data, error} = await supabase.auth.getUser();
-  if(error) {
+  const { data, error } = await supabase.auth.getUser();
+  if (error) {
     return null;
   }
   return data.user;
@@ -66,9 +66,9 @@ export async function signup(formData: FormData) {
   }
 
   return {
-      sucess: true,
-      message: "Confirm email",
-    }
+    sucess: true,
+    message: "Confirm email",
+  }
   //   revalidatePath('/', 'layout')
   //   redirect('/dashboard')
 }
@@ -85,4 +85,33 @@ export async function logout() {
 
   revalidatePath('/', 'layout')
   redirect('/login')
+}
+
+export async function signInWithGoogle() {
+  const supabase = await createClient();
+
+  const authCallbackUrl = `${process.env.SITE_URL}/auth/callback?next=/dashboard`
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: authCallbackUrl
+    },
+  })
+
+  console.log("google auth", data);
+
+  if (error) {
+    return {
+      sucess: false,
+      message: error.message,
+    }
+  }
+
+  redirect(data.url);
+
+  return {
+    sucess: true,
+    message: "Confirm email",
+  }
 }

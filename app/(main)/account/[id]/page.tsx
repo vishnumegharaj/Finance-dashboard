@@ -5,6 +5,8 @@ import { getAccountById } from '@/actions/accounts';
 import TransactionTable from '../_components/transaction-table';
 import { BarLoader } from 'react-spinners';
 import { Transaction } from '@/lib/interface/transaction';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 
 interface AccountParams {
@@ -36,9 +38,9 @@ const AccountPage = ({ params }: AccountParams) => {
         try {
             if (!skipLoading) setLoading(true);
             setError(null);
-            
+
             const result = await getAccountById(resolvedParams.id);
-            
+
             if (!result || !result.data) {
                 setError('Account not found');
                 return;
@@ -73,10 +75,10 @@ const AccountPage = ({ params }: AccountParams) => {
     // Error state
     if (error) {
         return (
-            <div className="p-8 text-center text-lg text-red-600">
+            <div className="text-center text-lg text-red-600">
                 {error}
-                <button 
-                    onClick={ () => fetchAccount(false)}
+                <button
+                    onClick={() => fetchAccount(false)}
                     className="ml-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
                     Retry
@@ -96,14 +98,14 @@ const AccountPage = ({ params }: AccountParams) => {
     const handleRefreshClick = () => { fetchAccount(false); };
 
     return (
-        <div className="p-4">
+        <div>
             {/* account details */}
-            <div className="flex flex-col sm:flex-row items-start justify-between mb-6">
+            <div className="flex flex-col sm:flex-row items-start justify-between mb-2">
                 <div className="">
                     <h1 className='text-5xl font-bold text-primary-gradient'>{account.name}</h1>
                     <div className="text-lg text-muted-foreground mb-4">
-                        {account.type.toLowerCase()} Account 
-                    </div>    
+                        {account.type.toLowerCase()} Account
+                    </div>
                 </div>
                 <div className="">
                     <div className="text-3xl font-bold text-green-700 mb-2">
@@ -113,14 +115,20 @@ const AccountPage = ({ params }: AccountParams) => {
                 </div>
             </div>
 
+            <Link href="/transaction/create" >
+                <Button className='mb-6'>
+                    <span>Add Transaction</span>
+                </Button>
+            </Link>
+
             {/* transaction table */}
-            <TransactionTable 
-                transactions={transactions} 
+            <TransactionTable
+                transactions={transactions}
                 refreshAccount={refreshAccount} // Pass silent refresh
             />
-            
+
             {/* Optional: Refresh button */}
-            <button 
+            <button
                 onClick={handleRefreshClick}
                 className="mt-4 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
             >

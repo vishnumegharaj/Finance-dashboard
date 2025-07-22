@@ -56,12 +56,35 @@ export default async function Header() {
 
       {/* Right‑side Auth Controls */}
       {user ? (
-        // Server logout form -> server action -> redirect -> Header re-renders with signed‑out state
-        <form action={logout}>
-          <Button type="submit" variant="outline">
-            Logout
-          </Button>
-        </form>
+        <div className="flex items-center gap-4">
+
+          {/* Logout Button */}
+          <form action={logout}>
+            <Button type="submit" variant="outline">
+              Logout
+            </Button>
+          </form>
+
+          {/* Avatar or Initial */}
+          {user.user_metadata?.avatar_url ? (
+            <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-300 shadow-sm">
+              <Image
+                src={user.user_metadata.avatar_url}
+                alt={user.user_metadata?.full_name || "User"}
+                width={32}
+                height={32}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-white flex items-center justify-center text-sm font-bold">
+              {user?.user_metadata?.full_name?.[0]?.toUpperCase() ||
+                user?.email?.[0]?.toUpperCase() ||
+                'G'}
+            </div>
+          )}
+
+        </div>
       ) : (
         <div className="flex items-center gap-4">
           <Link href="/login" prefetch>
@@ -72,6 +95,8 @@ export default async function Header() {
           </Link>
         </div>
       )}
+
+
     </header>
   )
 }

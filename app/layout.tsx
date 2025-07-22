@@ -25,7 +25,7 @@ export default function RootLayout({
       <body className={inter.className}>
         {/* {process.env.NODE_ENV === 'development' && <PerformanceMonitor />} */}
         <Header />
-        <main className="min-h-screen">{children}</main>
+        <main className="min-h-screen px-8 sm:px-6 lg:px-20">{children}</main>
         <Toaster position="top-center" richColors />
       </body>
     </html>
