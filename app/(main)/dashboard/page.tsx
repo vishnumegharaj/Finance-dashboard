@@ -94,15 +94,23 @@ function DashboardPage() {
         </div>}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
-        {accounts.map((account: AccountInterface) => {
-          const formattedAccount = {
-            ...account,
-            createdAt: new Date(account.createdAt).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
-            balance: `₹${account.balance.toLocaleString()}`,
-          };
-          return <AccountCard key={account.id} account={formattedAccount} />;
-        })}
+        {accounts.length === 0 && !isRefreshing ? (
+          <div className="col-span-full flex flex-col items-center justify-center py-10 text-center">
+            <p className="text-gray-500 text-lg font-medium">No accounts found</p>
+            <p className="text-sm text-gray-400">Start by adding your first account.</p>
+          </div>
+        ) : (
+          accounts.map((account: AccountInterface) => {
+            const formattedAccount = {
+              ...account,
+              createdAt: new Date(account.createdAt).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+              balance: `₹${account.balance.toLocaleString()}`,
+            };
+            return <AccountCard key={account.id} account={formattedAccount} />;
+          })
+        )}
       </div>
+
     </div>
   )
 }

@@ -58,7 +58,7 @@ export default function HomePage() {
       <FeaturesSection />
 
       {/* Stats Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
+      {/* <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center text-white">
             <div>
@@ -79,13 +79,13 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Testimonials Section */}
       <TestimonialsSection />
 
       {/* Pricing Section */}
-      <PricingSection />
+      {/* <PricingSection /> */}
 
       {/* CTA Section */}
       <CTASection />

@@ -17,7 +17,7 @@ const Logout = () => {
     }
     return (
         <div>
-            <Button disabled={loading} variant={"outline"} onClick={handleLogout} className="text-primary">
+            <Button disabled={loading} variant={"outline"} onClick={handleLogout}>
                 {loading ? (
                     <>
                         <Loader2 className=' h-4 w-4 animate-spin' /> logging out...

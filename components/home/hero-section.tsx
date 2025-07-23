@@ -35,24 +35,24 @@ export function HeroSection() {
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="group">
+              {/* <Button size="lg" variant="outline" className="group">
                 <Play className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
                 Watch Demo
-              </Button>
+              </Button> */}
             </div>
 
             <div className="flex items-center gap-8 text-sm text-gray-600">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                Free 14-day trial
+                Track expenses
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                No credit card required
+                Manage accounts
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                Cancel anytime
+                Gain insights
               </div>
             </div>
           </div>

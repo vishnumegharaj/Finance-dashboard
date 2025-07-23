@@ -16,15 +16,15 @@ export function CTASection() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link href="/sign-up" prefetch={true}>
             <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100">
-              Start Free Trial
+              SignUp
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>
-          <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+          {/* <Button variant="outline" className="border-white text-white hover:bg-white/10">
             Schedule Demo
-          </Button>
+          </Button> */}
         </div>
-        <p className="text-blue-100 text-sm mt-6">No credit card required • 14-day free trial • Cancel anytime</p>
+        <p className="text-blue-100 text-sm mt-6">• Track expenses • Manage accounts • Gain insights</p>
       </div>
     </section>
   )

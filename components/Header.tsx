@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { createClient } from '@/utils/supabase/server'
 import { logout } from '@/actions/auth'
 import { LayoutDashboard, Receipt } from "lucide-react";
+import Logout from './logout'
 
 export const dynamic = 'force-dynamic' // ensures no static caching of auth state; optional but helpful
 
@@ -20,13 +21,13 @@ export default async function Header() {
         <Link href="/" className="flex items-center gap-2">
           <Image
             src="/images/logo.png"
-            alt="FinanceFlow Logo"
+            alt="Fintrix Logo"
             width={36}
             height={36}
             className="w-9 h-9"
           />
-          <span className="font-bold text-xl text-primary-gradient bg-clip-text text-transparent">
-            FinanceFlow
+          <span className="font-bold text-2xl text-primary-gradient bg-clip-text text-transparent">
+            Fintrix
           </span>
         </Link>
       </nav>
@@ -59,11 +60,7 @@ export default async function Header() {
         <div className="flex items-center gap-4">
 
           {/* Logout Button */}
-          <form action={logout}>
-            <Button type="submit" variant="outline">
-              Logout
-            </Button>
-          </form>
+          <Logout/>
 
           {/* Avatar or Initial */}
           {user.user_metadata?.avatar_url ? (
