@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import { Toaster } from "@/components/ui/sonner";
+import { Analytics } from '@vercel/analytics/next';
 // import { PerformanceMonitor } from "@/components/PerformanceMonitor";
 
 const inter = Inter({
@@ -26,6 +27,7 @@ export default function RootLayout({
         {/* {process.env.NODE_ENV === 'development' && <PerformanceMonitor />} */}
         <Header />
         <main className="min-h-screen ">{children}</main>
+        <Analytics />
         <Toaster position="top-center" richColors />
       </body>
     </html>
