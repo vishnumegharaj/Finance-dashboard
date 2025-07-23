@@ -7,12 +7,13 @@ import { getAccounts } from '@/actions/dashboard';
 import { AccountCard } from './components/AccountCard';
 import { AccountTypeTypes } from '@/actions/dashboard';
 import { createClient } from '@/utils/supabase/client';
+import type { User } from '@supabase/supabase-js';
 
 function DashboardPage() {
   const [accounts, setAccounts] = useState<AccountInterface[]>([]);
   const [isInitialLoading, setIsInitialLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User['user_metadata'] | null>(null);
 
   useEffect(() => {
     const supabase = createClient();

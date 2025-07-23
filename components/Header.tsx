@@ -3,7 +3,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/utils/supabase/server'
-import { logout } from '@/actions/auth'
 import { LayoutDashboard, Receipt } from "lucide-react";
 import Logout from './logout'
 

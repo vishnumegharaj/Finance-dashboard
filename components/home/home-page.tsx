@@ -2,7 +2,6 @@
 import { HeroSection } from "./hero-section"
 import { FeaturesSection } from "./features-section"
 import { TestimonialsSection } from "./testimonials-section"
-import { PricingSection } from "./pricing-section"
 import { CTASection } from "./cta-section"
 
 export default function HomePage() {

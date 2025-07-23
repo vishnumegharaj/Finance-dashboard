@@ -6,8 +6,7 @@ import { loginSchema } from '@/app/lib/schema';
 import { login, signInWithGoogle } from '@/actions/auth';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Chrome, ArrowRight, EyeOff, Eye } from 'lucide-react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { ArrowRight, EyeOff, Eye } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -15,7 +14,6 @@ import { z } from 'zod';
 type LoginFormData = z.infer<typeof loginSchema>;
 
 const LoginPage = () => {
-  const supabase = createClientComponentClient();
   const [showPassword, setShowPassword] = useState(false);
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
