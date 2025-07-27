@@ -4,13 +4,23 @@ import CreateAccountDialog from '@/components/ui/CreateAccountDialog';
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { getAccounts } from '@/actions/dashboard';
-import { AccountCard } from './components/AccountCard';
+import { AccountCard } from './_components/AccountCard';
 import { AccountTypeTypes } from '@/actions/dashboard';
 import { createClient } from '@/utils/supabase/client';
 import type { User } from '@supabase/supabase-js';
+import { getCurrentBudget } from "@/actions/budget";
+import BudgetProgress from './_components/budgetProgress';
+import { BudgetInterface } from '@/lib/interface/budget';
+
+type BudgetData = {
+  budget: BudgetInterface | null;
+  expenses: number;
+};
 
 function DashboardPage() {
   const [accounts, setAccounts] = useState<AccountInterface[]>([]);
+  const defaultAccount = accounts.find((ac) => ac.isDefault);
+  const [Budget, setBudget] = useState<BudgetData | null>({ budget: null, expenses: 0 });
   const [isInitialLoading, setIsInitialLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [user, setUser] = useState<User['user_metadata'] | null>(null);
@@ -48,6 +58,15 @@ function DashboardPage() {
     fetchAccounts();
   }, [])
 
+  useEffect(() => {
+    if (defaultAccount) {
+      getCurrentBudget(defaultAccount.id).then((res) => {
+        console.log("budget data",res);
+        setBudget(res);
+      });
+    }
+  }, [defaultAccount])
+
   if (isInitialLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -62,6 +81,7 @@ function DashboardPage() {
   return (
     <div className=''>
 
+      {/* user Intro */}
       <div className="relative w-full rounded-2xl  py-6 pl-2">
         <div className="flex items-center gap-4">
           {/* <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-white flex items-center justify-center text-xl font-bold">
@@ -77,6 +97,14 @@ function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* budget */}
+      {defaultAccount && (
+        <BudgetProgress
+          initialBudget={Budget?.budget ?? null}
+          currentExpenses={Budget?.expenses ?? 0}
+        />
+      )}
 
       <div>
         <CreateAccountDialog fetchAccounts={fetchAccounts}>
