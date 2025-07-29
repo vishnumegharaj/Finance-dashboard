@@ -51,14 +51,10 @@ interface EmailProps {
     data?: EmailData;
 }
 
-export default function Email({
+export default function EmailTemplate({
     userName = "",
     type = "budget-alert",
-    data = {
-        usedPercentage: 0,
-        budgetAmount: 0,
-        totalExpenses: 0,
-    }
+    data = { usedPercentage: 0, budgetAmount: 0, totalExpenses: 0 }
 }: EmailProps) {
     const remaining = data.budgetAmount - data.totalExpenses;
 

@@ -1,13 +1,15 @@
+import { sendEmail } from "@/actions/sendEmails";
 import { db } from "../prisma";
 import { inngest } from "./client";
+import EmailTemplate from "../../emails/template";
 
 export const helloWorld = inngest.createFunction(
-  { id: "hello-world" },
-  { event: "test/hello.world" },
-  async ({ event, step }) => {
-    await step.sleep("wait-a-moment", "1s");
-    return { message: `Hello ${event.data.email}!` };
-  },
+    { id: "hello-world" },
+    { event: "test/hello.world" },
+    async ({ event, step }) => {
+        await step.sleep("wait-a-moment", "1s");
+        return { message: `Hello ${event.data.email}!` };
+    },
 );
 
 export const SendBudgetAlerts = inngest.createFunction(
@@ -24,7 +26,7 @@ export const SendBudgetAlerts = inngest.createFunction(
                                 where: {
                                     isDefault: true,
                                 }
-                            }
+                            },
                         }
                     }
                 }
@@ -55,13 +57,42 @@ export const SendBudgetAlerts = inngest.createFunction(
                 const budgetAmount = Number(budget?.amount);
                 const percentageUsed = (totalExpenses / budgetAmount) * 100;
 
-                if(percentageUsed >= 80 && (!budget.lastAlertSent || isNewMonth(new Date(budget.lastAlertSent), new Date()))){
+                if (percentageUsed >= 80
+                    // && (!budget.lastAlertSent || isNewMonth(new Date(budget.lastAlertSent), new Date()))
+                ) {
+
+                    // finding username
+                    const userData = budget.users.raw_user_meta_data;
+                    let displayName = 'Unknown User';
+
+                    // Type guard to check if userData is an object
+                    if (userData && typeof userData === 'object' && !Array.isArray(userData)) {
+                        const metaData = userData as Record<string, any>;
+                        displayName = metaData.username || metaData.full_name || budget.users.email || 'Unknown User';
+                    } else {
+                        displayName = budget.users.email || 'Unknown User';
+                    }
+
+
                     // send email
+                    await sendEmail({
+                        to: budget.users.email || " ",
+                        subject: "Budget Alert for " + defaultAccount.name,
+                        react: EmailTemplate({
+                            userName: displayName,
+                            type: "budget-alert",
+                            data: {
+                                usedPercentage: percentageUsed,
+                                budgetAmount,
+                                totalExpenses,
+                            }
+                        }),
+                    });
 
                     // update last alert sent in budgets db
                     await db.budget.update({
-                        where: {id: budget.id},
-                        data: {lastAlertSent : new Date() },
+                        where: { id: budget.id },
+                        data: { lastAlertSent: new Date() },
                     })
                 }
 
@@ -84,8 +115,8 @@ export const SendBudgetAlerts = inngest.createFunction(
     },
 );
 
-function isNewMonth(lastAlertDate: Date, currentDate: Date){
-    return(
+function isNewMonth(lastAlertDate: Date, currentDate: Date) {
+    return (
         lastAlertDate.getMonth() !== currentDate.getMonth() ||
         lastAlertDate.getFullYear() !== currentDate.getFullYear()
     )
