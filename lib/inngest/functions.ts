@@ -3,6 +3,13 @@ import { db } from "../prisma";
 import { inngest } from "./client";
 import EmailTemplate from "../../emails/template";
 
+interface UserMetaData {
+    username?: string;
+    full_name?: string;
+    name?: string;
+    [key: string]: unknown; // Allow other properties
+}
+
 export const helloWorld = inngest.createFunction(
     { id: "hello-world" },
     { event: "test/hello.world" },
@@ -58,7 +65,7 @@ export const SendBudgetAlerts = inngest.createFunction(
                 const percentageUsed = (totalExpenses / budgetAmount) * 100;
 
                 if (percentageUsed >= 80
-                    // && (!budget.lastAlertSent || isNewMonth(new Date(budget.lastAlertSent), new Date()))
+                    && (!budget.lastAlertSent || isNewMonth(new Date(budget.lastAlertSent), new Date()))
                 ) {
 
                     // finding username
@@ -67,7 +74,7 @@ export const SendBudgetAlerts = inngest.createFunction(
 
                     // Type guard to check if userData is an object
                     if (userData && typeof userData === 'object' && !Array.isArray(userData)) {
-                        const metaData = userData as Record<string, any>;
+                        const metaData = userData as UserMetaData;
                         displayName = metaData.username || metaData.full_name || budget.users.email || 'Unknown User';
                     } else {
                         displayName = budget.users.email || 'Unknown User';
@@ -95,9 +102,6 @@ export const SendBudgetAlerts = inngest.createFunction(
                         data: { lastAlertSent: new Date() },
                     })
                 }
-
-                const lastAlertSent = budget.lastAlertSent;
-                const isAlertSent = lastAlertSent && totalExpenses > budgetAmount;
 
             });
 
