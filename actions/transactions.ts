@@ -5,7 +5,10 @@ import { _success } from "zod/v4/core";
 import { Transaction } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 import { getAuthenticatedUser } from "./auth";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { ca } from "date-fns/locale";
 
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export async function DeleteManyTransaction(transactionIds: string[]) {
     try {
@@ -230,6 +233,78 @@ export async function updateTransactionById(transactionId: string, data: Transac
         return { success: false, error: error };
     }
 
+}
+
+export async function scanReceipt(file: File) {
+    try {
+
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
+
+        //convert file to ArrayBuffer
+        const arrayBuffer = await file.arrayBuffer();
+
+        //convert ArrayBuffer to Base64
+        const base64 = Buffer.from(arrayBuffer).toString('base64');
+
+        const prompt = `
+      Analyze this receipt image and extract the following information in JSON format:
+      - Total amount (just the number)
+      - Date (in ISO format)
+      - Description or items purchased (brief summary)
+      - Merchant/store name
+      - Suggested category (one of: housing,transportation,groceries,utilities,entertainment,food,shopping,healthcare,education,personal,travel,insurance,gifts,bills,other-expense )
+      
+      Only respond with valid JSON in this exact format:
+      {
+        "amount": number,
+        "date": "ISO date string",
+        "description": "string",
+        "merchantName": "string",
+        "category": "string"
+      }
+
+      If its not a recipt, return an empty object
+    `;
+
+        const result = await model.generateContent([
+            prompt,
+            {
+                inlineData: {
+                    data: base64,
+                    mimeType: file.type,
+                }
+            }
+        ]);
+
+        const response = await result.response;
+        const text = response.text();
+        console.log("Receipt Scan Result:", text);
+
+        const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
+
+        try{
+            const data = JSON.parse(cleanedText);
+            return {
+                success: true,
+                data: {
+                    amount: data.amount,
+                    date: new Date(data.date).toISOString(),
+                    description: data.description,
+                    merchantName: data.merchantName,
+                    category: data.category
+                }
+            }
+        }catch (error) {
+            console.error("Error parsing JSON:", error);
+            return { success: false, error: "Failed to parse receipt data. Please try again." };
+        }
+
+    } catch (error) {
+        if (error instanceof Error) {
+            return { success: false, error: error.message };
+        }
+        return { success: false, error: "An unexpected error occurred while upoading image try again later." };
+    }
 }
 
 const serializeBalance = (balance: Decimal) => {

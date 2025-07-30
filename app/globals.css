@@ -5,14 +5,36 @@
 
 @layer utilities {
   .bg-primary-gradient {
-    background-image: linear-gradient(to right, #2563eb, #205de0, #1e40af); /* blue-500, blue-600, blue-800 */
+    background-image: linear-gradient(to right, #2563eb, #205de0, #1e40af);
+    /* blue-500, blue-600, blue-800 */
   }
+
   .text-primary-gradient {
-    background-image: linear-gradient(to right, #2563eb, #225cdb, #1e40af); /* blue-500, blue-600, blue-800 */
+    background-image: linear-gradient(to right, #2563eb, #225cdb, #1e40af);
+    /* blue-500, blue-600, blue-800 */
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
+}
+
+@keyframes blink {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: blink 3s ease infinite;
 }
 
 @theme inline {
@@ -53,10 +75,13 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
   --form-control: {
     padding: 0.5rem 0.75rem;
-    spacing : 1rem;
-   };
+    spacing: 1rem;
+  }
+
+  ;
 }
 
 :root {
@@ -90,13 +115,11 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   /* Theme Colors */
-  --primary:  hsl(221, 89%, 40%);
-  --primary-gradient: linear-gradient(
-    90deg,
-    hsl(221, 89%, 50%) 10%,
-    hsl(221, 89%, 40%) 80%,
-    hsl(221, 89%, 32%) 100%
-  );
+  --primary: hsl(221, 89%, 40%);
+  --primary-gradient: linear-gradient(90deg,
+      hsl(221, 89%, 50%) 10%,
+      hsl(221, 89%, 40%) 80%,
+      hsl(221, 89%, 32%) 100%);
   --background: hsl(0, 0%, 100%);
   --card: hsl(0 0% 100%);
   --card-border: hsl(220 14% 96%);
@@ -151,18 +174,21 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
 
 .hidden {
-  display: none; /* reset */
+  display: none;
+  /* reset */
 }
 
 @media (min-width: 768px) {
   .md\:inline {
-    display: inline !important; /* force Tailwind's behavior */
+    display: inline !important;
+    /* force Tailwind's behavior */
   }
 }
 

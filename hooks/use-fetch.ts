@@ -22,11 +22,7 @@ const useFetch = (cb: Function) => {
             setData(response);
         } catch (err) {
             setError(err as Error);
-            if (err instanceof Error) {
-                toast.error(err.message);
-            } else {
-                toast.error(String(err));
-            }
+            toast.error(String(err));
         }
         finally {
             setLoading(false);

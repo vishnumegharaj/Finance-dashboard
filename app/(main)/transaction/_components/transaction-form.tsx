@@ -21,6 +21,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Transaction } from '@/lib/interface/transaction';
 import { useSearchParams } from 'next/navigation';
+import ReciptScanner from './recipt-scanner';
 
 // Types
 type Props = {
@@ -152,17 +153,22 @@ const AddTransactionForm = ({ accounts, editMode, transaction }: Props) => {
     }
   }, [transactionResult, transactionLoading, editMode]);
 
-  // Show loading state if accounts aren't loaded yet
-  // if (!accounts || accounts.length === 0) {
-  //   return (
-  //     <div className="max-w-xl mx-auto bg-white dark:bg-zinc-900 p-6 rounded-lg shadow">
-  //       <div className="text-center">Loading accounts...</div>
-  //     </div>
-  //   );
-  // }
-
+  const onScanComplete = (ScannedData: any) => {
+    console.log("Scanned data:", ScannedData);
+    if(ScannedData){
+      setValue('source', ScannedData.merchantName);
+      setValue('amount', ScannedData.amount.toString());
+      setValue('date', new Date(ScannedData.date));
+      setValue('description', ScannedData.description || '');
+      setValue('category', ScannedData.category || '');
+    }
+  };
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full m-0 ">
+
+      {/* AI recipt Scanner */}
+      <ReciptScanner onScanComplete={onScanComplete} />
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Type */}
         <div>
@@ -212,7 +218,7 @@ const AddTransactionForm = ({ accounts, editMode, transaction }: Props) => {
         {/* Amount */}
         <div>
           <label className="block mb-1 font-medium">Amount</label>
-          <Input type="number" step="1" min="1" placeholder="0.00" {...register('amount')} />
+          <Input type="number" step="0.1" min="1" placeholder="0.0" {...register('amount')} />
           {errors.amount && <span className="text-red-500 text-xs">{errors.amount.message}</span>}
         </div>
         {/* Category */}
