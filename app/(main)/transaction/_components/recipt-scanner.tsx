@@ -6,7 +6,19 @@ import { Camera, Loader2 } from 'lucide-react';
 import { useEffect, useRef } from 'react'
 import { toast } from 'sonner';
 
-const ReciptScanner = ({ onScanComplete }: any) => {
+export interface ScanReceiptType {
+    amount: number | null;
+    category: string | null;
+    date: string | null; // ISO 8601 date string
+    description: string | null;
+    merchantName: string | null;
+}
+
+type ReceiptScannerProps = {
+    onScanComplete: (scannedData: ScanReceiptType) => void;
+};
+
+const ReciptScanner = ({ onScanComplete }: ReceiptScannerProps) => {
     const fileInputRef = useRef<HTMLInputElement>(null)
 
     const {

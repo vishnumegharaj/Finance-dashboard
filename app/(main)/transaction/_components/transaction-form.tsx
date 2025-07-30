@@ -24,6 +24,14 @@ import { useSearchParams } from 'next/navigation';
 import ReciptScanner from './recipt-scanner';
 
 // Types
+export interface ScanReceiptType {
+  amount: number | null;
+  category: string | null;
+  date: string | null; // ISO 8601 date string
+  description: string | null;
+  merchantName: string | null;
+}
+
 type Props = {
   accounts: AccountInterface[];
   editMode: boolean;
@@ -153,15 +161,16 @@ const AddTransactionForm = ({ accounts, editMode, transaction }: Props) => {
     }
   }, [transactionResult, transactionLoading, editMode]);
 
-  const onScanComplete = (ScannedData: any) => {
+  const onScanComplete = (ScannedData: ScanReceiptType) => {
     console.log("Scanned data:", ScannedData);
-    if(ScannedData){
-      setValue('source', ScannedData.merchantName);
-      setValue('amount', ScannedData.amount.toString());
-      setValue('date', new Date(ScannedData.date));
-      setValue('description', ScannedData.description || '');
-      setValue('category', ScannedData.category || '');
+    if (ScannedData) {
+      if (ScannedData.merchantName) setValue('source', ScannedData.merchantName);
+      if (ScannedData.amount !== null && ScannedData.amount !== undefined) setValue('amount', ScannedData.amount.toString());
+      if (ScannedData.date) setValue('date', new Date(ScannedData.date));
+      if (ScannedData.description) setValue('description', ScannedData.description);
+      if (ScannedData.category) setValue('category', ScannedData.category);
     }
+
   };
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full m-0 ">
