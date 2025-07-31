@@ -102,7 +102,6 @@ export const SendBudgetAlerts = inngest.createFunction(
                         data: { lastAlertSent: new Date() },
                     })
                 }
-
             });
 
             await step.run("send-budget-alert", async () => {
