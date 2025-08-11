@@ -246,3 +246,21 @@ function calculateNextRecurringDate(startDate: string | number | Date, interval:
 
     return date;
 }
+
+
+export const generateMonthlyReport = inngest.createFunction(
+    { id: "generate-monthly-report", name: "Generate Monthly Report" },
+    { cron: "0 0 1 * *" }, // Run on the first day of every month
+    async ({ step }) => {
+        const transactions = await step.run("get-monthly-transactions", async () => {
+            return await db.transaction.findMany({
+                where: {
+                    date: {
+                        gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+                        lte: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1),
+                    },
+                },
+            });
+        });
+    }
+)
